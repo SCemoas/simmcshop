@@ -1,0 +1,24 @@
+{
+	"schemaVersion": 1,
+	"id": "shopsignscanner",
+	"version": "${version}",
+	"name": "shopsignscanner",
+	"description": "自动扫描玩家周围符合箱子商店格式的告示牌（玩家名/状态/物品/单价），连同坐标、所属领地与最近港口/驿站上传到自建 ingest 接口（含存活心跳）。默认走 HTTPS API 上报，客户端不持数据库口令；也保留 MySQL 直连后备模式。",
+	"authors": [
+		"ShopSign"
+	],
+	"license": "CC0-1.0",
+	"icon": "assets/shopsignscanner/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"com.shopsign.scanner.ShopSignScannerClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}

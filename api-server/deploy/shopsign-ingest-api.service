@@ -1,0 +1,48 @@
+[Unit]
+Description=shopsign ingest API (mod 上报后端)
+Documentation=https://github.com/（仓库地址）/tree/main/api-server
+# 只依赖网络栈；MySQL 在别的机器时它挂了也不该阻止本服务启动（启动自检只会告警）
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# 专用低权限账号，见 README「部署」一节
+User=shopsign
+Group=shopsign
+WorkingDirectory=/opt/shopsign-ingest-api
+ExecStart=/usr/bin/node server.js
+# 配置只从文件读，不进命令行（否则口令会出现在 ps 里）
+EnvironmentFile=/opt/shopsign-ingest-api/.env
+Environment=NODE_ENV=production
+
+Restart=always
+RestartSec=3
+# 别让反复崩溃的进程打满 journal
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+# 优雅退出：server.js 收到 SIGTERM 会停收新请求、等在途请求、关连接池
+KillSignal=SIGTERM
+TimeoutStopSec=15
+
+# 加固：服务只写自己的日志，不需要任何特权
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/shopsign-ingest-api/logs
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=shopsign-ingest
+
+[Install]
+WantedBy=multi-user.target
